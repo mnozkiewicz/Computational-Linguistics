@@ -9,7 +9,9 @@ wheels/
 # Virtual environments
 .venv
 
-
 # Datasets
 lab1/data/*
 lab1/speakleash_data/*
+
+
+.DS_Store/*
