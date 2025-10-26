@@ -31,29 +31,22 @@ class CausalSelfAttention(nn.Module):
         self.num_heads = num_heads
         self.head_dim = embed_dim // num_heads
 
-        # Linear projections for Q, K, V
         self.qkv_proj = nn.Linear(embed_dim, 3 * embed_dim)
         self.out_proj = nn.Linear(embed_dim, embed_dim)
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        x: (batch_size, seq_len, embed_dim)
-        returns: (batch_size, seq_len, embed_dim)
-        """
         B, T, C = x.shape
 
-        # Compute Q, K, V and reshape for multi-head
-        qkv: torch.Tensor = self.qkv_proj(x)  # (B, T, 3*embed_dim)
+        qkv: torch.Tensor = self.qkv_proj(x)
         q, k, v = qkv.chunk(3, dim=-1)
 
-        # reshape to (B, heads, T, head_dim)
         q = q.view(B, T, self.num_heads, self.head_dim).transpose(1, 2)
         k = k.view(B, T, self.num_heads, self.head_dim).transpose(1, 2)
         v = v.view(B, T, self.num_heads, self.head_dim).transpose(1, 2)
 
-        # Scaled dot-product attention
-        attn_scores = (q @ k.transpose(-2, -1)) / (self.head_dim ** 0.5)  # (B, heads, T, T)
+
+        attn_scores = (q @ k.transpose(-2, -1)) / (self.head_dim ** 0.5)
 
         # Causal mask (prevent attending to future tokens)
         mask = torch.tril(torch.ones(T, T, device=x.device)).unsqueeze(0).unsqueeze(0)
@@ -62,9 +55,9 @@ class CausalSelfAttention(nn.Module):
         attn_probs = F.softmax(attn_scores, dim=-1)
         attn_probs = self.dropout(attn_probs)
 
-        # Attention output
-        out = attn_probs @ v  # (B, heads, T, head_dim)
-        out = out.transpose(1, 2).contiguous().view(B, T, C)  # (B, T, embed_dim)
+
+        out = attn_probs @ v
+        out = out.transpose(1, 2).contiguous().view(B, T, C)
         out = self.out_proj(out)
         return out
     
@@ -118,24 +111,18 @@ class GPTDecoder(nn.Module):
             for _ in range(num_layers)
         ])
         self.ln_f = nn.LayerNorm(embed_dim)
-
-        # Language modeling head
         self.lm_head = nn.Linear(embed_dim, vocab_size, bias=False)
         # Weight tying
         self.lm_head.weight = self.embed_tokens.weight
 
     def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
-        """
-        input_ids: (batch_size, seq_len)
-        returns logits: (batch_size, seq_len, vocab_size)
-        """
-        x = self.embed_tokens(input_ids)       # (B, T, embed_dim)
-        x = self.pos_encoding(x)               # add positional encoding
+        x = self.embed_tokens(input_ids)
+        x = self.pos_encoding(x)
 
         for layer in self.layers:
             x = layer(x)
 
-        x = self.ln_f(x)                       # final layer norm
-        logits = self.lm_head(x)               # project to vocab size
+        x = self.ln_f(x)
+        logits = self.lm_head(x)
         return logits
     

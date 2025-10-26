@@ -13,6 +13,8 @@ wheels/
 lab1/data/*
 lab1/speakleash_data/*
 
+!lab1/data/.gitkeep
+
 # VSCode
 .DS_Store
 
