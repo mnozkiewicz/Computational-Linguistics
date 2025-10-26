@@ -14,7 +14,7 @@ lab1/data/*
 lab1/speakleash_data/*
 
 # VSCode
-.DS_Store/*
+.DS_Store
 
 
 # Models
