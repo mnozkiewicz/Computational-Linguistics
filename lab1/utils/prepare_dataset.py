@@ -48,7 +48,7 @@ def prepare_dataset(
 def main():
     sl = Speakleash("../speakleash_data")
 
-    prepare_dataset(sl, "news_5_lifestyle_corpus", "../data/train/", 50_000_000, 10)
+    prepare_dataset(sl, "plwiki", "../data/train/", 100_000_000, 20)
     prepare_dataset(sl, "plwiki", "../data/test/", 1_000_000)
 
 
