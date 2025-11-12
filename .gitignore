@@ -12,6 +12,7 @@ wheels/
 # Datasets
 lab1/data/*
 lab1/speakleash_data/*
+lab2/data/*
 
 !lab1/data/.gitkeep
 
