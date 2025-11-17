@@ -45,8 +45,8 @@ class WPTokenizer:
         self.id2word = {i: w for w, i in self.word2id.items()}
 
     def _tokenize(self, text):
-        # Regex explanation:
-        # \w+ : word characters
+        # Regex
+        # \w+ : matches 1 or more word characters
         # [^\w\s] : any single character that is not a word or whitespace (punctuation)
         return re.findall(r"\w+|[^\w\s]", text.lower(), re.UNICODE)
 
